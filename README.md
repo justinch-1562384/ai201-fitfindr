@@ -20,28 +20,18 @@
 
 ---
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     HOW TO USE THIS FILE
-
-     This is your submission. Fill each section in as you finish the milestone
-     it belongs to — don't leave it all to the end.
-
-     Unit 3 asks for the first five sections. Unit 4 adds the five below them.
-     Leave the unit 4 sections alone until then; they're here so you know
-     what's coming.
-
-     Everything is pasted as TEXT. No screenshots, no images, no video links.
-     A typed block of output gets full credit; a picture of the same output
-     gets none.
-     ───────────────────────────────────────────────────────────────────────── -->
-
-<!-- ═══════════════════════ UNIT 3 — THE BUILD ═══════════════════════ -->
 
 ## What This Does
 
 <!-- Three or four sentences: what a user asks for, and what they get back. -->
 
+FitFindr is an agent that reviews listings found in data/listings.json and returns a response based on the text provided utilizing 3 tools.
 
+First, the agent will searcht the listings for various keywords and terms, such as price, category of clothing, and materials.
+
+Then, it will suggest an outfit for the user based on the findings from the listings and the query involved.
+
+Finally, it will keep the outfit suggested as a fit_card for later tool use calls. 
 
 ---
 
@@ -59,24 +49,26 @@
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Reviews listing based on a primary description, then price ceiling and size, then returns the listings that match the given input as a json list
+- **Inputs:** Description (str), Price (float), and size (M) - Price and Size are optional 
+- **Returns:** A list containing all of the 'hits' or matches found in listings.json, bounded by the inputs provided. All information from the json listing is returned, which includes the following fields enumated below:
+     - id (int), title (str), description (str), category (str), style_tags list(str), size (str), condition (str), price (float), colors (list(str)), brand (str), platform (str)
+     Note that the primary info the tool will reference is the description, followed by price ceiling and size
+- **When it has nothing:** It will return an empty list object. 
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** This will call the model through generate() and provide a suggestion for one or two outfits based upon a thrifted items and the user's wardrobe. This is returned as a string
+- **Inputs:**: new_item (a listing dict from listings.json), and wardrobe (a dict for wardrobe with a list of items). Wardrobe follows the schema found in wardrobe_schema and should it be empty, will handle this by generating a new wardrobe object
+- **Returns:** A non-empty string with outfit suggestions based on the inputs  and model provided. Should a wardrobe item not be found or not included, general styling suggestions will be offered instead of a targeted outfit.
+- **When it has nothing:** If no results was returned, an empty list is returned
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** This provides a string as a review for a specific object or outfit as a three-four sentence string. 
+- **Inputs:** Output from suggest_outfit and new_item, a dict object found from listings.json. Output from suggest_outfit is optional. 
+- **Returns:** A string containing a description or caption regarding the fit of a specific object. If outfit is empty, return a descriptive message of the item rather then areturning an error. This should mimic a review about the item, and should include price, platform, item_name once, with the vibe making the bulk of a message. Length is determined to be 3-4 sentences long. 
+- **When it has nothing:** This should not return a raise error. Rather, this should return a string asking for additional context, such as asking for an item or outfit suggestion. 
 
 ---
 
