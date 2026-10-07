@@ -85,7 +85,9 @@ Finally, it will keep the outfit suggested as a fit_card for later tool use call
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:**
+**Branch rule:** If search_listings returns an empty list, put a message in the session and stop. Otherwise, take the first result and go to suggest_outfit. 
+
+If suggest_outfit returns an empty string, call create_fit_card with no outfit. It describes the item on its own instead of failing.
 
 **Where it lives:** `agent.py::run_agent`
 

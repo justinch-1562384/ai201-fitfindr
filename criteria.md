@@ -25,9 +25,7 @@ Given a query that matches at least one listing, the agent completes all three
 tool calls and returns a fit card — in at least 4 of 5 tries.
 
 **Why this target:**
-<!-- Why 4 of 5 and not 5 of 5? Something about your search, probably —
-     "my search is a plain keyword match and some phrasings will miss" is a
-     real answer. -->
+As a fit card is reliant on output from suggest_outfit, there may be an issue calling the tool when suggest_results returns an empty list due to an error. With chaining calls, we do not expect 100% success rate 
 
 ---
 
@@ -37,28 +35,17 @@ Given a query that matches no listings, the agent stops before calling
 `suggest_outfit` and returns a message naming what to change — 5 of 5 tries.
 
 **Why this target:**
-<!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
-     about this path? -->
 
+This is an error condition, as the return statement for this tool in README.md should provide an string about general fashion advice rather than an empty string or an error. 
 ---
 
 ## 3. Something about state
 
-<!-- YOU WRITE THIS ONE.
-
-     How would you know that the item your search found is the same item the
-     next tool received? Name something countable or observable.
-
-     This is the criterion people find hardest, because state failure doesn't
-     look like state failure — it looks like a tool problem. Something that
-     compares session["selected_item"] against what actually reached
-     suggest_outfit is the shape you're after. -->
-
-
+Given a query that matches at least one listing, session["selected_item"]["id"] equals the id of the new_item passed to suggest_outfit and the id of the new_item passed to create_fit_card, in 5 of 5 runs where search returned results.
 
 **Why this target:**
 
-
+All three tools utilize the same listing dictionary. Should one not match the others in all three tool calls, we can assume the state is compromised at one point. 
 
 ---
 
@@ -75,28 +62,22 @@ Given a query that matches no listings, the agent stops before calling
      sentence? A card longer than a caption anyone would post? Any of those can
      be turned into a number. -->
 
-
+For five calls to create_fit_card, ensure that the text contains the listing's price is formatted as $N or $N.NN is found in the listing object 5 out of 5 times. Please also ensure that the platform and item_name is referenced as well. 
 
 **Why this target:**
-
+There will always be a listing dict object inputted based on our specs. README.MD also has the requirement to have the price, platform, and item_name always referenced in the fit card. 
 
 
 ---
 
 ## 5. Your choice
 
-<!-- YOU WRITE THIS ONE TOO.
-
-     Pick something you actually care about getting right. Speed, the empty
-     wardrobe path, what happens when the model can't be reached, whether the
-     search respects a price ceiling — anything, as long as it names a number
-     or an observable outcome. -->
-
+With an empty wardrobe, suggest_outfit returns a non-empty string with no error, and the agent still produces a fit card, in 5 of 5 tries.
 
 
 **Why this target:**
 
-
+The tool should give general styling advice instead of raising an error or returning "". The check on wardrobe['items'] happens in code before the model is called, so this path is predictable. The starter code also says unit 4 has you trigger the empty wardrobe, so you'll be testing it anyway.
 
 ---
 
