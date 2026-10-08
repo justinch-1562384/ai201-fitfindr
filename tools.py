@@ -188,8 +188,58 @@ def suggest_outfit(new_item: dict, wardrobe: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    owned = (wardrobe or {}).get("items") or []
+    item = _describe_listing(new_item)
+
+    if not owned:
+        prompt = (
+            f"Someone is thinking about buying this thrifted item:\n{item}\n\n"
+            "They haven't told you what's in their wardrobe. Suggest one or "
+            "two outfits built around this item using common basics most "
+            "people own (say what kind of piece, colour and fit), and one "
+            "tip on how to style it."
+        )
+    else:
+        pieces = "\n".join(f"- {_describe_wardrobe_item(p)}" for p in owned)
+        prompt = (
+            f"Someone is thinking about buying this thrifted item:\n{item}\n\n"
+            f"This is what they already own:\n{pieces}\n\n"
+            "Suggest one or two outfits that pair the new item with pieces "
+            "from their wardrobe. Name each wardrobe piece exactly as it is "
+            "written above, and only use pieces from that list."
+        )
+
+    return generate(prompt, system=_STYLIST_SYSTEM)
+
+
+_STYLIST_SYSTEM = (
+    "You are a stylist who works with thrifted clothes. Be specific and "
+    "brief: each outfit is one or two sentences. Plain text, no headings."
+)
+
+
+def _describe_listing(listing: dict) -> str:
+    """The listing fields that matter for styling, one line each."""
+    lines = [
+        f"Title: {listing['title']}",
+        f"Category: {listing['category']}",
+        f"Colors: {', '.join(listing['colors'])}",
+        f"Style: {', '.join(listing['style_tags'])}",
+        f"Size: {listing['size']}",
+        f"Description: {listing['description']}",
+    ]
+    if listing.get("brand"):
+        lines.insert(1, f"Brand: {listing['brand']}")
+    return "\n".join(lines)
+
+
+def _describe_wardrobe_item(piece: dict) -> str:
+    """One wardrobe piece on one line, e.g. 'Wide-leg khaki trousers (bottoms; khaki, tan)'."""
+    details = [piece.get("category", ""), ", ".join(piece.get("colors") or [])]
+    line = f"{piece['name']} ({'; '.join(d for d in details if d)})"
+    if piece.get("notes"):
+        line += f" — {piece['notes']}"
+    return line
 
 
 # ── Tool 3: create_fit_card ───────────────────────────────────────────────────
