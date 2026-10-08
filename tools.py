@@ -20,7 +20,9 @@ That last line is what your loop branches on. "Returns a list" earns nothing —
 the description has to say what is *in* the list.
 """
 
-import config  # noqa: F401 — you'll use this in search_listings
+import re
+
+import config
 from generate import generate
 from utils.data_loader import load_listings
 
@@ -78,8 +80,82 @@ def search_listings(
     Test it from a terminal before you move on:
         python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
     """
-    # TODO: replace this with your implementation
-    return []
+    query_words = _words(description or "")
+    if not query_words:
+        return []
+
+    scored = []
+    for listing in load_listings():
+        if max_price is not None and listing["price"] > max_price:
+            continue
+        if size and not _size_matches(size, listing["size"]):
+            continue
+
+        score = _score(query_words, listing)
+        if score > 0:
+            scored.append((score, listing))
+
+    # sorted() is stable, so ties keep the order they have in listings.json
+    scored = sorted(scored, key=lambda pair: pair[0], reverse=True)
+    return [listing for _, listing in scored[: config.SEARCH_RESULT_LIMIT]]
+
+
+# Words that say nothing about the item. Without this, "a top for the summer"
+# scores every listing whose description contains "the".
+_STOPWORDS = {
+    "a", "an", "and", "the", "for", "with", "in", "of", "to", "on", "or",
+    "i", "im", "me", "my", "want", "need", "looking", "something", "some",
+    "under", "size", "that", "is", "it",
+}
+
+
+def _words(text: str) -> set[str]:
+    """Lowercase words with a trailing plural 's' dropped, so 'tees' meets 'tee'."""
+    words = set()
+    for word in re.findall(r"[a-z0-9]+", text.lower()):
+        if word in _STOPWORDS:
+            continue
+        if len(word) > 3 and word.endswith("s"):
+            word = word[:-1]
+        words.add(word)
+    return words
+
+
+def _score(query_words: set[str], listing: dict) -> int:
+    """
+    Count query words found in the listing. A hit in the title, category or
+    style tags counts 2, a hit only in the description, colors or brand
+    counts 1. A word the seller put in the title says more about the item than
+    one mentioned in passing in the description.
+    """
+    strong = _words(" ".join([
+        listing["title"], listing["category"], " ".join(listing["style_tags"]),
+    ]))
+    weak = _words(" ".join([
+        listing["description"], " ".join(listing["colors"]), listing["brand"] or "",
+    ]))
+    return sum(2 if w in strong else 1 if w in weak else 0 for w in query_words)
+
+
+def _size_matches(wanted: str, listing_size: str) -> bool:
+    """
+    Whole-token size matching, case-insensitive.
+
+    A listing size is split on '/' into options, with any parenthetical note
+    dropped: "S/M" offers "s" and "m", "XL (oversized)" offers "xl", and
+    "One Size / Oversized" offers "one size" and "oversized". The wanted size
+    matches if it equals one of those options, or one space-separated word of
+    an option, so "W30" matches "W30 L30".
+
+    Never a substring test: "S" must not match "US 9", and "L" must not
+    match "XL" or "L30".
+    """
+    wanted = " ".join(wanted.lower().split())
+    for option in re.sub(r"\(.*?\)", "", listing_size.lower()).split("/"):
+        option = " ".join(option.split())
+        if wanted == option or wanted in option.split():
+            return True
+    return False
 
 
 # ── Tool 2: suggest_outfit ────────────────────────────────────────────────────
