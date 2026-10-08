@@ -278,5 +278,39 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     Test it from a terminal before you move on:
         python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
     """
-    # TODO: replace this with your implementation
-    return ""
+    price = _format_price(new_item["price"])
+    platform = new_item["platform"]
+
+    if not outfit or not outfit.strip():
+        return (
+            f"No outfit to caption yet for the {new_item['title']} "
+            f"({price} on {platform}). Run suggest_outfit for this item "
+            "first, then make the fit card from what it suggests."
+        )
+
+    prompt = (
+        f"Write a caption for a post about this thrifted find.\n\n"
+        f"{_describe_listing(new_item)}\n"
+        f"Price: {price}\n"
+        f"Platform: {platform}\n\n"
+        f"How it's being styled:\n{outfit.strip()}\n\n"
+        "Rules:\n"
+        "- Two to four sentences.\n"
+        f"- Mention the item, the price written exactly as {price}, and "
+        f"{platform}, once each.\n"
+        "- Most of the caption is about the vibe of the outfit — be "
+        "specific, not generic.\n"
+        "- Sound like a person posting their find, not a product listing."
+    )
+    return generate(prompt, system=_CAPTION_SYSTEM)
+
+
+_CAPTION_SYSTEM = (
+    "You write short social media captions for thrifted outfits. Return only "
+    "the caption: no title, no quotation marks, no hashtag block."
+)
+
+
+def _format_price(price: float) -> str:
+    """$38 for whole prices, $18.50 otherwise — the form criterion 4 looks for."""
+    return f"${price:.0f}" if price == int(price) else f"${price:.2f}"
