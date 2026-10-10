@@ -282,10 +282,14 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
     platform = new_item["platform"]
 
     if not outfit or not outfit.strip():
+        # No outfit to caption, so describe the item on its own. No model call:
+        # if suggest_outfit just came back empty, the model is the likely
+        # problem.
         return (
-            f"No outfit to caption yet for the {new_item['title']} "
-            f"({price} on {platform}). Run suggest_outfit for this item "
-            "first, then make the fit card from what it suggests."
+            f"{new_item['title']}, {price} on {platform}. "
+            f"Size {new_item['size']}, {new_item['condition']} condition. "
+            f"{new_item['description']} No outfit came through for this one, "
+            "so it's the piece on its own for now."
         )
 
     prompt = (

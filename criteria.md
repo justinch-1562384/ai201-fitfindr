@@ -77,7 +77,7 @@ With an empty wardrobe, suggest_outfit returns a non-empty string with no error,
 
 **Why this target:**
 
-The tool should give general styling advice instead of raising an error or returning "". The check on wardrobe['items'] happens in code before the model is called, so this path is predictable. The starter code also says unit 4 has you trigger the empty wardrobe, so you'll be testing it anyway.
+The tool should give general styling advice instead of raising an error or returning "".
 
 ---
 

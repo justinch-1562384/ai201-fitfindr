@@ -91,9 +91,9 @@ If suggest_outfit returns an empty string, call create_fit_card with no outfit. 
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed:** Regex
 
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session:** price, size, fit
 
 ---
 
@@ -106,9 +106,16 @@ If suggest_outfit returns an empty string, call create_fit_card with no outfit. 
 
 **One full query**
 
-```
-$ python app.py ask '...'
+```$
+python app.py ask 'What are some jackets?'
 
+  Found:    90s Track Jacket — Navy/White Stripe — $45.0 on poshmark
+
+  Outfit:   Pair the 90s Track Jacket over the white ribbed tank top and baggy straight-leg jeans, finishing the look with chunky white sneakers.
+
+Layer the 90s Track Jacket with the white ribbed tank top and wide-leg khaki trousers, accessorized with the black crossbody bag and chunky white sneakers.
+
+  Fit card: Nothing beats the effortless athletic energy of this vintage 90s Champion track jacket layered over baggy denim and chunky sneakers for that ultimate off-duty look. You can easily dress it up with wide-leg trousers and a sleek crossbody for running errands around the city. Grab this versatile piece on Poshmark for just $45 before someone else snags it.
 ```
 
 **The three tools, tested one at a time**
@@ -144,15 +151,19 @@ Nothing beats a pair of broken-in Levi's 501s worn with crisp white sneakers for
 
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+
+
+- *What I asked for:* I used Claude to doublecheck my acceptance criteria and ensure that the metrics posed were testable and provide adjustments when needed. This was used for the fourth criteria 
+
+- *What came back:*  An recommendation was suggested to have the currency format added to the criteria as something that can be flagged during acceptance testing 
+
+- *What I changed:* I adjusted the criteria to add a flag to render the currency. 
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked Claude to implement the various tools used in the implementation for fitfindr
+- *What came back:* A relatively complete implmentation of the tools found
+- *What I changed:* I asked for additional context and changed certain lines depending on the function
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
