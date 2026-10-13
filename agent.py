@@ -17,7 +17,8 @@ import re
 
 import config
 import trace
-from tools import search_listings, suggest_outfit, create_fit_card
+from mcp_client import call_tool
+from tools import suggest_outfit, create_fit_card
 from generate import ModelUnavailable
 
 
@@ -119,30 +120,43 @@ def run_agent(query: str, wardrobe: dict) -> dict:
 
         if next_step == "parse":
             session["parsed"] = parse_query(query)
+            trace.step("parse_query", inputs=query, returned=session["parsed"])
             next_step = "search"
 
         elif next_step == "search":
             parsed = session["parsed"]
-            session["search_results"] = search_listings(
-                parsed["description"],
-                size=parsed["size"],
-                max_price=parsed["max_price"],
-            )
+            search_inputs = {
+                "description": parsed["description"],
+                "size": parsed["size"],
+                "max_price": parsed["max_price"],
+            }
+            session["search_results"] = call_tool("search_listings", search_inputs)
             # THE BRANCH: nothing found means stop here, before suggest_outfit.
             if not session["search_results"]:
+                trace.step("search_listings (via MCP)", inputs=search_inputs,
+                           returned=session["search_results"],
+                           note="branch: empty, stopping before suggest_outfit")
                 session["error"] = _no_results_message(parsed)
                 next_step = "done"
             else:
+                trace.step("search_listings (via MCP)", inputs=search_inputs,
+                           returned=session["search_results"])
                 next_step = "select"
 
         elif next_step == "select":
             session["selected_item"] = session["search_results"][0]
+            trace.step("select_item", inputs="first search result",
+                       returned=session["selected_item"])
             next_step = "suggest"
 
         elif next_step == "suggest":
             session["outfit_suggestion"] = suggest_outfit(
                 session["selected_item"], session["wardrobe"]
             )
+            trace.step("suggest_outfit",
+                       inputs={"item": session["selected_item"]["title"],
+                               "wardrobe_items": len(session["wardrobe"].get("items", []))},
+                       returned=session["outfit_suggestion"])
             # An empty outfit still goes on: create_fit_card describes the
             # item on its own when it has no outfit to caption.
             next_step = "fit_card"
@@ -151,6 +165,10 @@ def run_agent(query: str, wardrobe: dict) -> dict:
             session["fit_card"] = create_fit_card(
                 session["outfit_suggestion"] or "", session["selected_item"]
             )
+            trace.step("create_fit_card",
+                       inputs={"outfit": session["outfit_suggestion"] or "",
+                               "item": session["selected_item"]["title"]},
+                       returned=session["fit_card"])
             next_step = "done"
 
     return session
@@ -214,7 +232,11 @@ def _no_results_message(parsed: dict) -> str:
     if not desc:
         return "Say what kind of item you're after, e.g. \"vintage denim jacket\"."
 
-    if filters and search_listings(desc):
+    unfiltered = call_tool("search_listings", {"description": desc}) if filters else []
+    if filters:
+        trace.step("search_listings (via MCP)", inputs={"description": desc},
+                   returned=unfiltered, note="retry without filters to word the error")
+    if unfiltered:
         return (
             f"There are listings for \"{desc}\", but none "
             f"{' and '.join(filters)}. Try a different size or a higher price limit."

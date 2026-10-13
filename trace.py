@@ -29,13 +29,17 @@ import config
 
 _lines: list[str] = []
 _step_number = 0
+# Off until start_trace() is called, so step() stays silent on runs without
+# --trace (and in serve.py, where nothing ever reads the trace).
+_enabled = False
 
 
 def start_trace() -> None:
-    """Clear the trace. Call this at the start of each run."""
-    global _step_number
+    """Clear the trace and turn it on. Call this at the start of each run."""
+    global _step_number, _enabled
     _lines.clear()
     _step_number = 0
+    _enabled = True
 
 
 def step(name: str, inputs=None, returned=None, note: str = "") -> None:
@@ -50,6 +54,8 @@ def step(name: str, inputs=None, returned=None, note: str = "") -> None:
         note:     an optional word on why, e.g. "branch: empty, stopping".
     """
     global _step_number
+    if not _enabled:
+        return
     _step_number += 1
 
     line = f"[{_step_number}] {name}"
@@ -84,8 +90,10 @@ def _short(value, limit: int = 110) -> str:
     if isinstance(value, dict):
         if "title" in value:
             return f"{value.get('title')} (${value.get('price')}, {value.get('platform')})"
-        keys = ", ".join(list(value)[:6])
-        return f"dict with keys: {keys}"
+        # Show the values, not just the keys — "max_price=30" is what you need
+        # to spot a parse that lost the price.
+        pairs = ", ".join(f"{k}={_short(v, 40)}" for k, v in list(value.items())[:6])
+        return pairs if len(pairs) <= limit else pairs[:limit] + "…"
 
     text = str(value).replace("\n", " ")
     return text if len(text) <= limit else text[:limit] + "…"

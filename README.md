@@ -99,11 +99,6 @@ If suggest_outfit returns an empty string, call create_fit_card with no outfit. 
 
 ## Sample Run
 
-<!-- Two things go here.
-
-     1. One FULL query and its output, pasted as text.
-     2. Your three per-tool terminal tests — the command and what it printed. -->
-
 **One full query**
 
 ```$
@@ -142,15 +137,7 @@ Nothing beats a pair of broken-in Levi's 501s worn with crisp white sneakers for
 
 ## How I Used AI
 
-<!-- Two specific moments. What you asked, what came back, what you changed.
-
-     "I used Claude to help me code" is not enough.
-
-     "I gave Claude my search_listings spec. It returned None on no match
-     instead of an empty list, so I changed it" is the level we want. -->
-
 **Moment 1**
-
 
 
 - *What I asked for:* I used Claude to doublecheck my acceptance criteria and ensure that the metrics posed were testable and provide adjustments when needed. This was used for the fourth criteria 
@@ -304,19 +291,6 @@ full. -->
 
 
 <!-- ═════════════════════════════════════════════════════════════════════
-
-     SUBMISSION CHECKLIST — unit 3
-
-       [ ] criteria.md has five numbered criteria, each with a target
-       [ ] Each criterion has a reason underneath it
-       [ ] All five unit 3 sections above have real content
-       [ ] Tool Inventory: all three tools, inputs WITH TYPES, a specific
-           return value, and the empty case
-       [ ] Planning Loop names the branch rule and agent.py::run_agent
-       [ ] Sample Run: one full query plus the three per-tool tests, as text
-       [ ] At least four new commits
-       [ ] Repository URL submitted — WRITE IT DOWN, you submit the same one
-           next unit
 
      SUBMISSION CHECKLIST — unit 4
 
