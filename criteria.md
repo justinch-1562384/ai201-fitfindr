@@ -39,7 +39,7 @@ Given a query that matches no listings, the agent stops before calling
 This is an error condition, as the return statement for this tool in README.md should provide an string about general fashion advice rather than an empty string or an error. 
 ---
 
-## 3. Something about state
+## 3. State matches all selected items
 
 Given a query that matches at least one listing, session["selected_item"]["id"] equals the id of the new_item passed to suggest_outfit and the id of the new_item passed to create_fit_card, in 5 of 5 runs where search returned results.
 
@@ -49,7 +49,7 @@ All three tools utilize the same listing dictionary. Should one not match the ot
 
 ---
 
-## 4. Something about the fit card
+## 4. Fit card returns currency value
 
 <!-- YOU WRITE THIS ONE.
 
@@ -70,7 +70,7 @@ There will always be a listing dict object inputted based on our specs. README.M
 
 ---
 
-## 5. Your choice
+## 5. Suggest Outfit returns fitcard
 
 With an empty wardrobe, suggest_outfit returns a non-empty string with no error, and the agent still produces a fit card, in 5 of 5 tries.
 

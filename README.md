@@ -172,11 +172,11 @@ Nothing beats a pair of broken-in Levi's 501s worn with crisp white sneakers for
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. A matching query completes all three tools| 5/5 | PASS | PASS | PASS | PASS | PASS |  |
+| 2. An impossible query stops before the second tool |  |  |  |  |  |  |  |
+| 3. State matches all selected items  |  |  |  |  |  |  |  |
+| 4. Fit card returns currency value  |  |  |  |  |  |  |  |
+| 5.  Suggest Outfit returns fitcard|  |  |  |  |  |  |  |
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
